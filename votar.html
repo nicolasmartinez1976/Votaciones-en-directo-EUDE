@@ -82,7 +82,7 @@
     </div>
     <div id="clave" class="clave oculto"></div>
   </div>
-  <div class="pie">EUDE Business School · Dirección y Gestión de la Fuerza de Ventas</div>
+  <div class="pie" id="pie">EUDE Business School</div>
 </div>
 <script src="/comun.js"></script>
 <script>
@@ -110,6 +110,7 @@ function pintarOpciones() {
 function pintar() {
   $("cargando").classList.add("oculto"); $("app").classList.remove("oculto");
   $("titulo").textContent = enc.titulo;
+  $("pie").textContent = enc.contexto ? `EUDE Business School · ${enc.contexto}` : "EUDE Business School";
   $("situacion").innerHTML = enc.situacion.map(p => `<p>${esc(p)}</p>`).join("");
   $("pregunta").textContent = enc.pregunta;
   miVoto = store.get(claveVoto());

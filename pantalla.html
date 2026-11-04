@@ -75,7 +75,7 @@
 <div class="lienzo">
   <div class="cab"><img class="eude" src="/img/eude.jpg" alt="EUDE"><img class="we" src="/img/weareeude.jpg" alt="#WEAREEUDE"></div>
   <div>
-    <div class="eyebrow">Bloque 4 · Caso · Votación en directo</div>
+    <div class="eyebrow" id="etiqueta">Votación en directo</div>
     <h1 class="titulo" id="titulo">Cargando…</h1>
   </div>
   <div class="cuerpo">
@@ -145,6 +145,7 @@ function revelada() { return revLocal || (enc && enc.estado === "revelada"); }
 
 function pintarEstatico() {
   $("titulo").textContent = enc.titulo;
+  $("etiqueta").textContent = enc.etiqueta || "Votación en directo";
   $("situacion").innerHTML = enc.situacion.map(p => `<p>${esc(p)}</p>`).join("");
   $("pregunta").textContent = enc.pregunta;
   $("ops").innerHTML = enc.opciones.map(o => `
@@ -178,10 +179,11 @@ function pintarDinamico() {
     const c = enc.opciones.find(o => o.k === enc.correcta) || {};
     $("expTit").textContent = `${enc.correcta}. ${c.titulo || ""}`;
     $("expTxt").textContent = enc.explicacion;
-    $("pie").innerHTML = `<b>Recuerda:</b> ${esc(enc.clave)}`;
+    $("pie").innerHTML = enc.clave ? `<b>Recuerda:</b> ${esc(enc.clave)}` : `<b>Respuesta revelada.</b>`;
     $("bRev").textContent = "Ocultar respuesta";
   } else {
-    $("pie").innerHTML = `<b>Escanea el QR:</b> vota A, B o C y, si quieres, explica por qué. Los resultados aparecen en directo.`;
+    const ks = enc.opciones.map(o => o.k); const letras = ks.length > 1 ? ks.slice(0, -1).join(", ") + " o " + ks[ks.length - 1] : ks.join("");
+    $("pie").innerHTML = `<b>Escanea el QR:</b> vota ${letras} y, si quieres, explica por qué. Los resultados aparecen en directo.`;
     $("bRev").textContent = "Revelar";
   }
   $("bBarras").textContent = ocultarPct ? "Mostrar %" : "Ocultar %";

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Administrar votaciones · EUDE</title>
+<link rel="stylesheet" href="/estilos.css">
+<style>
+  body { background: var(--crema); }
+  .w { max-width: 1180px; margin: 0 auto; padding: 18px 20px 60px; }
+  .cab { background: #fff; padding: 10px 16px; border-radius: 12px; height: 54px; }
+  .cab img.eude { max-height: 28px; } .cab img.we { max-height: 15px; }
+  h1.titulo { font-size: 26px; margin: 18px 0 4px; }
+  .sub { color: var(--gris); margin-bottom: 16px; }
+  .grid { display: grid; grid-template-columns: 340px 1fr; gap: 18px; align-items: start; }
+  .panel { background: #fff; border-radius: 14px; padding: 16px 18px; }
+  .panel h2 { margin: 0 0 10px; font-size: 17px; color: var(--burdeos); }
+  .item { border: 1px solid #EEE4D7; border-radius: 10px; padding: 10px 12px; margin-bottom: 8px; cursor: pointer; }
+  .item:hover, .item.act { border-color: var(--burdeos); background: #FBF5F7; }
+  .item .s { font-size: 12px; color: var(--gris); }
+  .item .t { font-weight: 700; color: var(--navy); font-size: 14px; margin-top: 2px; }
+  label { display: block; font-weight: 700; font-size: 13px; color: var(--navy); margin: 12px 0 4px; }
+  label small { font-weight: 400; color: var(--gris); }
+  input[type=text], input[type=password], textarea { width: 100%; padding: 9px 11px; border: 1px solid #D9CFC2; border-radius: 9px; font: inherit; font-size: 15px; background: #fff; }
+  textarea { min-height: 70px; resize: vertical; }
+  .fila { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .op { display: grid; grid-template-columns: 34px 1fr 2fr 90px; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .op .letra { width: 30px; height: 30px; font-size: 15px; }
+  .op .ok { font-size: 13px; display: flex; gap: 4px; align-items: center; }
+  .bt { display: inline-block; padding: 10px 16px; border-radius: 10px; border: 0; cursor: pointer; font-size: 15px; font-weight: 700; text-decoration: none; }
+  .prim { background: var(--burdeos); color: #fff; } .sec { background: var(--navy); color: #fff; } .lig { background: #EEE4D7; color: var(--navy); }
+  .peligro { background: #fff; color: #B42318; border: 1px solid #F0C9C5; }
+  .acc { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
+  .msg { margin-top: 10px; font-size: 14px; min-height: 18px; }
+  .msg.err { color: #B42318; } .msg.ok { color: var(--verde); }
+  .enl { margin-top: 16px; background: var(--crema); border-radius: 12px; padding: 14px; display: grid; grid-template-columns: 1fr 150px; gap: 14px; align-items: center; }
+  .enl code { background: #fff; padding: 2px 6px; border-radius: 6px; font-size: 13px; }
+  .enl canvas { width: 150px; height: 150px; background: #fff; border-radius: 8px; }
+  .login { max-width: 380px; margin: 40px auto; }
+</style>
+</head>
+<body>
+<div class="w">
+  <div class="cab"><img class="eude" src="/img/eude.jpg" alt="EUDE"><img class="we" src="/img/weareeude.jpg" alt="#WEAREEUDE"></div>
+
+  <div id="login" class="panel login">
+    <h2>Administrar votaciones</h2>
+    <label for="pin">PIN del profesor</label>
+    <input id="pin" type="password" inputmode="numeric" autocomplete="off">
+    <div class="acc"><button class="bt prim" id="entrar">Entrar</button></div>
+    <div class="msg err" id="lmsg"></div>
+  </div>
+
+  <div id="app" class="oculto">
+    <h1 class="titulo">Votaciones en directo</h1>
+    <div class="sub">Crea una encuesta para cada clase. Los votos no se guardan: se borran al empezar una sesión nueva y, en cualquier caso, a los 2 días.</div>
+    <div class="grid">
+      <div class="panel">
+        <h2>Tus encuestas</h2>
+        <button class="bt prim" id="nueva" style="width:100%;margin-bottom:12px">+ Nueva encuesta</button>
+        <div id="lista"></div>
+      </div>
+      <div class="panel">
+        <h2 id="ftit">Nueva encuesta</h2>
+        <div class="fila">
+          <div><label>Código <small>(va en el enlace: minúsculas, números y guiones)</small></label><input id="f_slug" type="text" placeholder="pricing-dia1"></div>
+          <div><label>Etiqueta superior <small>(en dorado)</small></label><input id="f_etiqueta" type="text" placeholder="Bloque 2 · Caso · Votación en directo"></div>
+        </div>
+        <label>Título</label><input id="f_titulo" type="text" placeholder="3 minutos, una decisión: …">
+        <label>Asignatura · máster <small>(aparece al pie del móvil)</small></label><input id="f_contexto" type="text" placeholder="Pricing · Máster en Marketing">
+        <label>La situación <small>(cada línea es un párrafo; puede ir vacío)</small></label><textarea id="f_situacion"></textarea>
+        <label>Pregunta</label><input id="f_pregunta" type="text" placeholder="¿Qué harías tú?">
+        <label>Opciones <small>(deja vacía la D si solo hay tres; marca la correcta)</small></label>
+        <div id="ops"></div>
+        <label>Explicación de la respuesta correcta</label><textarea id="f_explicacion"></textarea>
+        <label>Frase clave <small>(barra inferior al revelar; opcional)</small></label><input id="f_clave" type="text">
+        <div class="acc">
+          <button class="bt prim" id="guardar">Guardar</button>
+          <button class="bt lig" id="duplicar">Duplicar como nueva</button>
+          <button class="bt peligro" id="borrar">Borrar</button>
+        </div>
+        <div class="msg" id="fmsg"></div>
+        <div class="enl oculto" id="enl">
+          <div>
+            <div><b>Alumnos:</b> <code id="uv"></code></div>
+            <div style="margin-top:8px"><b>Tu pantalla (Web Viewer):</b> <code id="up"></code></div>
+            <div class="acc" style="margin-top:12px">
+              <a class="bt sec" id="abrirP" target="_blank" rel="noopener">Abrir pantalla</a>
+              <a class="bt lig" id="abrirV" target="_blank" rel="noopener">Ver como alumno</a>
+              <a class="bt lig" id="bajarQR" download>Descargar QR (PNG)</a>
+            </div>
+          </div>
+          <canvas id="qr" width="600" height="600"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/qrcode.js"></script>
+<script src="/comun.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const LETRAS = ["A", "B", "C", "D"];
+let PIN = null, encuestas = [], actual = null;
+
+$("ops").innerHTML = LETRAS.map(k => `<div class="op"><span class="letra">${k}</span>
+  <input type="text" id="o_t_${k}" placeholder="Título corto"><input type="text" id="o_x_${k}" placeholder="Texto de la opción">
+  <label class="ok" style="margin:0;font-weight:400"><input type="radio" name="corr" value="${k}"> correcta</label></div>`).join("");
+
+async function rpc(fn, body) { return sb(`rpc/${fn}`, { method: "POST", body: JSON.stringify(body) }); }
+
+$("entrar").onclick = async () => {
+  const p = $("pin").value.trim(); $("lmsg").textContent = "";
+  try { if (await rpc("vot_pin_ok", { p_pin: p })) { PIN = p; store.set("eude_pin", p); arrancar(); } else $("lmsg").textContent = "PIN incorrecto."; }
+  catch (e) { $("lmsg").textContent = "Sin conexión con el servidor."; }
+};
+$("pin").addEventListener("keydown", e => { if (e.key === "Enter") $("entrar").click(); });
+
+async function arrancar() { $("login").classList.add("oculto"); $("app").classList.remove("oculto"); await cargar(); limpiar(); }
+async function cargar() {
+  encuestas = await sb("vot_encuestas?select=*&order=actualizado.desc");
+  $("lista").innerHTML = encuestas.map(e => `<div class="item ${actual === e.slug ? "act" : ""}" data-s="${esc(e.slug)}">
+    <div class="s">${esc(e.slug)}${e.contexto ? " · " + esc(e.contexto) : ""}</div><div class="t">${esc(e.titulo)}</div></div>`).join("") || `<div class="sub">Aún no hay encuestas.</div>`;
+  $("lista").querySelectorAll(".item").forEach(d => d.onclick = () => editar(d.dataset.s));
+}
+function limpiar() {
+  actual = null; $("ftit").textContent = "Nueva encuesta"; $("f_slug").disabled = false;
+  ["slug","etiqueta","titulo","contexto","situacion","pregunta","explicacion","clave"].forEach(f => $("f_" + f).value = "");
+  LETRAS.forEach(k => { $("o_t_" + k).value = ""; $("o_x_" + k).value = ""; });
+  document.querySelectorAll("input[name=corr]").forEach(r => r.checked = false);
+  $("enl").classList.add("oculto"); $("fmsg").textContent = ""; cargar();
+}
+function editar(slug) {
+  const e = encuestas.find(x => x.slug === slug); if (!e) return;
+  actual = slug; $("ftit").textContent = "Editar encuesta"; $("f_slug").disabled = true;
+  $("f_slug").value = e.slug; $("f_etiqueta").value = e.etiqueta || ""; $("f_titulo").value = e.titulo; $("f_contexto").value = e.contexto || "";
+  $("f_situacion").value = (e.situacion || []).join("\n"); $("f_pregunta").value = e.pregunta; $("f_explicacion").value = e.explicacion; $("f_clave").value = e.clave || "";
+  LETRAS.forEach(k => { const o = e.opciones.find(x => x.k === k) || {}; $("o_t_" + k).value = o.titulo || ""; $("o_x_" + k).value = o.texto || ""; });
+  document.querySelectorAll("input[name=corr]").forEach(r => r.checked = r.value === e.correcta);
+  $("fmsg").textContent = ""; enlaces(e.slug); cargar();
+}
+function datos() {
+  const opciones = LETRAS.map(k => ({ k, titulo: $("o_t_" + k).value.trim(), texto: $("o_x_" + k).value.trim() })).filter(o => o.titulo || o.texto);
+  const c = document.querySelector("input[name=corr]:checked");
+  return { slug: $("f_slug").value.trim().toLowerCase(), etiqueta: $("f_etiqueta").value.trim(), titulo: $("f_titulo").value.trim(),
+    contexto: $("f_contexto").value.trim(), situacion: $("f_situacion").value.split("\n").map(x => x.trim()).filter(Boolean),
+    pregunta: $("f_pregunta").value.trim(), opciones, correcta: c ? c.value : null,
+    explicacion: $("f_explicacion").value.trim(), clave: $("f_clave").value.trim() };
+}
+function msg(t, ok) { $("fmsg").textContent = t; $("fmsg").className = "msg " + (ok ? "ok" : "err"); }
+$("guardar").onclick = async () => {
+  const d = datos();
+  if (!actual && encuestas.some(e => e.slug === d.slug)) return msg("Ya existe una encuesta con ese código. Elige otro.");
+  try { const r = await rpc("vot_guardar", { p_pin: PIN, p: d }); msg("Guardada.", true); await cargar(); editar(r.slug); msg("Guardada.", true); }
+  catch (e) { msg(e.message || "No se ha podido guardar."); }
+};
+$("duplicar").onclick = () => { actual = null; $("f_slug").disabled = false; $("f_slug").value = ""; $("ftit").textContent = "Nueva encuesta (copia)"; $("enl").classList.add("oculto"); msg("Pon un código nuevo y guarda.", true); $("f_slug").focus(); };
+$("nueva").onclick = limpiar;
+$("borrar").onclick = async () => {
+  if (!actual) return limpiar();
+  if ($("borrar").dataset.c !== actual) { $("borrar").dataset.c = actual; $("borrar").textContent = "Pulsa otra vez para borrar"; return; }
+  $("borrar").dataset.c = ""; $("borrar").textContent = "Borrar";
+  try { await rpc("vot_borrar", { p_pin: PIN, p_slug: actual }); limpiar(); msg("Encuesta borrada.", true); } catch (e) { msg(e.message); }
+};
+function enlaces(slug) {
+  const a = aliasDe(slug);
+  const v = a !== slug ? `/${a}` : `/v/${slug}`, p = a !== slug ? `/pantalla/${a}` : `/p/${slug}`;
+  $("uv").textContent = location.host + v; $("up").textContent = location.host + p;
+  $("abrirP").href = p; $("abrirV").href = v;
+  const q = qrcode(0, "M"); q.addData(location.origin + v); q.make();
+  const cv = $("qr"), ctx = cv.getContext("2d"), n = q.getModuleCount(), m = 2, cell = Math.floor(cv.width / (n + 2 * m));
+  ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, cv.width, cv.height); ctx.fillStyle = "#1E293B";
+  const off = Math.floor((cv.width - cell * n) / 2);
+  for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (q.isDark(r, c)) ctx.fillRect(off + c * cell, off + r * cell, cell, cell);
+  $("bajarQR").href = cv.toDataURL("image/png"); $("bajarQR").download = `qr-${slug}.png`;
+  $("enl").classList.remove("oculto");
+}
+(async () => { const g = store.get("eude_pin"); if (g) { try { if (await rpc("vot_pin_ok", { p_pin: g })) { PIN = g; arrancar(); } } catch (e) {} } })();
+</script>
+</body>
+</html>
