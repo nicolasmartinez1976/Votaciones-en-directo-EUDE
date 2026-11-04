@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vota · EUDE Business School</title>
+<link rel="stylesheet" href="/estilos.css">
+<style>
+  body { background: var(--crema); min-height: 100vh; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 14px 16px 40px; }
+  .cab { background: #fff; padding: 10px 14px; border-radius: 12px; height: 52px; }
+  .cab img.eude { max-height: 26px; }
+  .cab img.we { max-height: 14px; }
+  .eyebrow { font-size: 12px; margin: 18px 2px 4px; }
+  .titulo { font-size: 23px; margin: 0 2px 14px; }
+  .sit { padding: 16px 18px; font-size: 16px; line-height: 1.4; }
+  .sit .lbl { color: var(--oro); font-size: 12px; font-weight: 700; letter-spacing: .04em; margin-bottom: 6px; }
+  .sit p { margin: 0 0 8px; }
+  .sit .pregunta { margin: 10px 0 0; font-size: 17px; }
+  .ops { display: grid; gap: 10px; margin: 16px 0; }
+  .op { display: flex; gap: 12px; align-items: center; text-align: left; width: 100%; padding: 14px;
+    background: #fff; border: 2px solid transparent; border-radius: 14px; font-size: 16px; color: var(--navy);
+    cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+  .op .letra { width: 40px; height: 40px; font-size: 19px; }
+  .op b { color: var(--burdeos); }
+  .op.sel { border-color: var(--burdeos); background: #FBF5F7; }
+  .op[disabled] { cursor: default; }
+  .op.ok { border-color: var(--oro); background: var(--oro-claro); }
+  .op.mal { opacity: .55; }
+  label.lbl2 { display: block; font-weight: 700; color: var(--burdeos); margin: 6px 2px 6px; font-size: 15px; }
+  textarea { width: 100%; min-height: 86px; border-radius: 12px; border: 1px solid #D9CFC2; padding: 12px;
+    font: inherit; font-size: 16px; resize: vertical; background: #fff; }
+  .cont { text-align: right; font-size: 12px; color: var(--gris); margin-top: 4px; }
+  .enviar { width: 100%; margin-top: 14px; padding: 16px; border: 0; border-radius: 14px; background: var(--burdeos);
+    color: #fff; font-size: 18px; font-weight: 700; cursor: pointer; }
+  .enviar[disabled] { background: #B9A1AA; cursor: default; }
+  .aviso { padding: 16px 18px; margin-top: 14px; font-size: 16px; line-height: 1.4; }
+  .aviso h3 { margin: 0 0 6px; color: var(--burdeos); font-size: 18px; }
+  .revel { background: var(--burdeos); color: #fff; border-radius: 14px; padding: 16px 18px; margin-top: 14px; line-height: 1.45; }
+  .revel .lbl { color: var(--oro); font-weight: 700; font-size: 13px; letter-spacing: .04em; }
+  .revel h3 { margin: 4px 0 8px; font-size: 19px; }
+  .clave { background: var(--navy); color: #fff; border-radius: 12px; padding: 12px 16px; margin-top: 10px; font-size: 15px; }
+  .clave b { color: var(--oro); }
+  .err { color: #B42318; font-size: 14px; margin-top: 8px; }
+  .pie { text-align: center; color: var(--gris); font-size: 12px; margin-top: 22px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="cab"><img class="eude" src="/img/eude.jpg" alt="EUDE Business School"><img class="we" src="/img/weareeude.jpg" alt="#WEAREEUDE"></div>
+  <div id="cargando" class="aviso card-crema">Cargando la votación…</div>
+  <div id="app" class="oculto">
+    <div class="eyebrow">Votación en directo · anónima</div>
+    <h1 class="titulo" id="titulo"></h1>
+    <div class="sit card-navy">
+      <div class="lbl">LA SITUACIÓN</div>
+      <div id="situacion"></div>
+      <p class="pregunta" id="pregunta"></p>
+    </div>
+    <div class="ops" id="ops"></div>
+    <div id="formExtra">
+      <label class="lbl2" for="coment">¿Por qué? Escribe tu argumento (opcional)</label>
+      <textarea id="coment" maxlength="280" placeholder="Saldrá en la pantalla de clase, sin tu nombre."></textarea>
+      <div class="cont"><span id="nc">0</span>/280</div>
+      <button class="enviar" id="enviar" disabled>Elige una opción</button>
+      <div class="err" id="err"></div>
+    </div>
+    <div id="hecho" class="aviso card-crema oculto">
+      <h3>¡Voto registrado!</h3>
+      <div id="hechoTxt"></div>
+      <div style="margin-top:6px;color:var(--gris)">Mira la pantalla: cuando el profesor revele la respuesta, también aparecerá aquí.</div>
+    </div>
+    <div id="cerrada" class="aviso card-crema oculto">
+      <h3>La votación está cerrada</h3>
+      <div>La respuesta ya se ha revelado en clase.</div>
+    </div>
+    <div id="revel" class="revel oculto">
+      <div class="lbl">RESPUESTA RECOMENDADA</div>
+      <h3 id="revTit"></h3>
+      <div id="revExp"></div>
+      <div id="revTu" style="margin-top:10px;font-weight:700"></div>
+    </div>
+    <div id="clave" class="clave oculto"></div>
+  </div>
+  <div class="pie">EUDE Business School · Dirección y Gestión de la Fuerza de Ventas</div>
+</div>
+<script src="/comun.js"></script>
+<script>
+const slug = slugActual();
+let enc = null, sel = null, miVoto = null;
+const $ = id => document.getElementById(id);
+const claveVoto = () => `eude_voto_${slug}_${enc.sesion}`;
+
+function pintarOpciones() {
+  const revelada = enc.estado === "revelada";
+  const yaVotado = !!miVoto;
+  $("ops").innerHTML = enc.opciones.map(o => {
+    let cls = "op";
+    if (revelada) cls += o.k === enc.correcta ? " ok" : " mal";
+    else if ((yaVotado ? miVoto : sel) === o.k) cls += " sel";
+    return `<button class="${cls}" data-k="${o.k}" ${revelada || yaVotado ? "disabled" : ""}>
+      <span class="letra">${esc(o.k)}</span><span><b>${esc(o.titulo)}:</b> ${esc(o.texto)}</span></button>`;
+  }).join("");
+  $("ops").querySelectorAll(".op").forEach(b => b.onclick = () => {
+    sel = b.dataset.k; pintarOpciones();
+    $("enviar").disabled = false; $("enviar").textContent = `Enviar mi voto (${sel})`;
+  });
+}
+
+function pintar() {
+  $("cargando").classList.add("oculto"); $("app").classList.remove("oculto");
+  $("titulo").textContent = enc.titulo;
+  $("situacion").innerHTML = enc.situacion.map(p => `<p>${esc(p)}</p>`).join("");
+  $("pregunta").textContent = enc.pregunta;
+  miVoto = store.get(claveVoto());
+  const revelada = enc.estado === "revelada";
+  pintarOpciones();
+  $("formExtra").classList.toggle("oculto", revelada || !!miVoto);
+  $("hecho").classList.toggle("oculto", revelada || !miVoto);
+  if (miVoto) $("hechoTxt").textContent = `Has votado la opción ${miVoto}.`;
+  $("cerrada").classList.toggle("oculto", !(revelada && !miVoto));
+  $("revel").classList.toggle("oculto", !revelada);
+  $("clave").classList.toggle("oculto", !revelada || !enc.clave);
+  if (revelada) {
+    const c = enc.opciones.find(o => o.k === enc.correcta) || {};
+    $("revTit").textContent = `${enc.correcta}. ${c.titulo || ""}`;
+    $("revExp").textContent = enc.explicacion;
+    $("revTu").textContent = miVoto ? (miVoto === enc.correcta ? "✓ Tu respuesta coincide." : `Tu voto fue ${miVoto}. Ahora ya sabes por qué la recomendada es la ${enc.correcta}.`) : "";
+    $("clave").innerHTML = `<b>Recuerda:</b> ${esc(enc.clave)}`;
+  }
+}
+
+$("coment").addEventListener("input", e => $("nc").textContent = e.target.value.length);
+$("enviar").addEventListener("click", async () => {
+  if (!sel) return;
+  $("enviar").disabled = true; $("enviar").textContent = "Enviando…"; $("err").textContent = "";
+  const comentario = $("coment").value.trim().slice(0, 280) || null;
+  try {
+    await sb("vot_votos", { method: "POST", headers: { Prefer: "return=minimal" },
+      body: JSON.stringify({ slug, sesion: enc.sesion, opcion: sel, comentario, dispositivo: dispositivo() }) });
+    store.set(claveVoto(), sel);
+  } catch (e) {
+    if (e.status === 409 || e.code === "23505") { store.set(claveVoto(), sel); }
+    else {
+      await refrescar();
+      if (enc.estado !== "revelada") {
+        $("err").textContent = "No se ha podido enviar. Revisa la conexión e inténtalo otra vez.";
+        $("enviar").disabled = false; $("enviar").textContent = `Enviar mi voto (${sel})`;
+      }
+      return;
+    }
+  }
+  pintar();
+});
+
+async function refrescar() {
+  try {
+    const nuevo = await cargarEncuesta(slug);
+    if (!nuevo) { $("cargando").textContent = "Esta votación no existe. Revisa el enlace o el QR."; return; }
+    const cambio = !enc || nuevo.estado !== enc.estado || nuevo.sesion !== enc.sesion;
+    const sesionNueva = enc && nuevo.sesion !== enc.sesion;
+    enc = nuevo;
+    if (sesionNueva) { sel = null; $("coment").value = ""; $("nc").textContent = "0"; $("enviar").disabled = true; $("enviar").textContent = "Elige una opción"; }
+    if (cambio) pintar();
+  } catch (e) { if (!enc) $("cargando").textContent = "Sin conexión. Reintentando…"; }
+}
+refrescar();
+setInterval(refrescar, 3000);
+</script>
+</body>
+</html>

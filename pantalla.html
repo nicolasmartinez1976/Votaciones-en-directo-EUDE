@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pantalla de votación · EUDE Business School</title>
+<link rel="stylesheet" href="/estilos.css">
+<style>
+  html, body { height: 100%; overflow: hidden; }
+  body { font-size: min(1.45vw, 2.6vh); }
+  .lienzo { height: 100vh; width: 100vw; display: flex; flex-direction: column; padding: 1.6vh 2.2vw 2vh; gap: 1.3vh; }
+  .cab { height: 4.2vh; }
+  .cab img.eude { height: 100%; max-height: none; }
+  .cab img.we { height: 55%; max-height: none; }
+  .eyebrow { font-size: .9em; margin-top: .6vh; }
+  .titulo { font-size: 1.85em; }
+  .cuerpo { flex: 1; display: grid; grid-template-columns: 36% 1fr; gap: 1.6vw; min-height: 0; }
+  .izq { display: flex; flex-direction: column; gap: 1.4vh; min-height: 0; }
+  .sit { font-size: 1.12em; padding: 1.1em 1.2em; flex: 1; min-height: 0; overflow: hidden; line-height: 1.32; }
+  .sit .lbl { color: var(--oro); font-size: .72em; font-weight: 700; letter-spacing: .05em; margin-bottom: .5em; }
+  .sit p { margin: 0 0 .55em; }
+  .sit .pregunta { margin-top: .7em; }
+  .qr { display: flex; gap: 1em; align-items: center; padding: .8em 1em; background: var(--crema); border-radius: 14px; }
+  .qr .code { height: 17vh; width: 17vh; border-radius: 8px; background: #fff; padding: .4vh; flex: none; }
+  .qr .code svg { width: 100%; height: 100%; display: block; }
+  .qr .u { font-weight: 700; color: var(--burdeos); font-size: 1.05em; word-break: break-all; }
+  .qr .n { font-size: 2.4em; font-weight: 700; color: var(--navy); line-height: 1; margin-top: .25em; }
+  .qr .n small { font-size: .38em; font-weight: 400; color: var(--gris); margin-left: .3em; }
+  .der { display: flex; flex-direction: column; gap: 1.1vh; min-height: 0; }
+  .op { position: relative; background: var(--crema); border-radius: 12px; overflow: hidden; border: 3px solid transparent;
+    transition: opacity .4s, border-color .4s; flex: none; }
+  .op .barra { position: absolute; inset: 0 auto 0 0; width: 0; background: rgba(118,30,58,.14); transition: width .8s ease; }
+  .op .in { position: relative; display: flex; align-items: center; gap: .9em; padding: .75em 1em; }
+  .op .letra { width: 2.1em; height: 2.1em; font-size: 1.05em; }
+  .op .txt { flex: 1; line-height: 1.25; }
+  .op .txt b { color: var(--burdeos); }
+  .op .pct { font-weight: 700; font-size: 1.5em; color: var(--burdeos); min-width: 3.4em; text-align: right; }
+  .op .pct small { display: block; font-size: .45em; color: var(--gris); font-weight: 400; }
+  .op.ok { border-color: var(--oro); background: var(--oro-claro); }
+  .op.ok .barra { background: rgba(201,162,39,.35); }
+  .op.mal { opacity: .45; }
+  .tick { display: none; color: var(--verde); font-weight: 700; font-size: .78em; }
+  .op.ok .tick { display: block; }
+  .zona { flex: 1; min-height: 0; border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; }
+  .muro { background: #fff; border: 1px solid #EADFD1; padding: .8em 1em; }
+  .muro .lbl { color: var(--oro); font-weight: 700; font-size: .72em; letter-spacing: .05em; margin-bottom: .5em; }
+  .coms { display: grid; grid-template-columns: 1fr 1fr; gap: .6em; overflow: hidden; }
+  .com { background: var(--crema); border-radius: 10px; padding: .55em .7em; font-size: .86em; line-height: 1.3; display: flex; gap: .55em;
+    animation: entra .5s ease; }
+  .com .letra { width: 1.7em; height: 1.7em; font-size: .9em; }
+  .vacio { color: var(--gris); font-style: italic; font-size: .9em; }
+  @keyframes entra { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .exp { font-size: 1.12em; background: var(--burdeos); color: #fff; padding: 1em 1.2em; line-height: 1.38; animation: entra .6s ease; }
+  .exp .lbl { color: var(--oro); font-weight: 700; font-size: .75em; letter-spacing: .05em; }
+  .exp h3 { margin: .25em 0 .45em; font-size: 1.3em; }
+  .barraInf { background: var(--navy); color: #fff; border-radius: 10px; padding: .75em 1.2em; font-size: .95em; display: flex; align-items: center; gap: 1em; }
+  .barraInf b { color: var(--oro); }
+  .barraInf .esp { flex: 1; }
+  .ctr { display: flex; gap: .4em; }
+  .ctr button { background: transparent; border: 1px solid rgba(255,255,255,.35); color: #fff; border-radius: 8px; padding: .3em .7em;
+    font-size: .75em; cursor: pointer; opacity: .75; }
+  .ctr button:hover { opacity: 1; }
+  .ctr button.prim { background: var(--oro); border-color: var(--oro); color: var(--navy); font-weight: 700; opacity: 1; }
+  .modal { position: fixed; inset: 0; background: rgba(30,41,59,.55); display: flex; align-items: center; justify-content: center; }
+  .modal .box { background: #fff; border-radius: 14px; padding: 1.4em 1.6em; width: min(26em, 90vw); }
+  .modal h3 { margin: 0 0 .6em; color: var(--burdeos); }
+  .modal input { width: 100%; font-size: 1.2em; padding: .5em; border-radius: 8px; border: 1px solid #ccc; letter-spacing: .2em; }
+  .modal .bt { display: flex; gap: .6em; justify-content: flex-end; margin-top: 1em; }
+  .modal button { padding: .5em 1em; border-radius: 8px; border: 0; cursor: pointer; font-size: .95em; }
+  .modal .ok { background: var(--burdeos); color: #fff; }
+  .modal .msg { color: #B42318; font-size: .85em; margin-top: .5em; min-height: 1.2em; }
+</style>
+</head>
+<body>
+<div class="lienzo">
+  <div class="cab"><img class="eude" src="/img/eude.jpg" alt="EUDE"><img class="we" src="/img/weareeude.jpg" alt="#WEAREEUDE"></div>
+  <div>
+    <div class="eyebrow">Bloque 4 · Caso · Votación en directo</div>
+    <h1 class="titulo" id="titulo">Cargando…</h1>
+  </div>
+  <div class="cuerpo">
+    <div class="izq">
+      <div class="sit card-navy">
+        <div class="lbl">LA SITUACIÓN</div>
+        <div id="situacion"></div>
+        <p class="pregunta" id="pregunta"></p>
+      </div>
+      <div class="qr">
+        <div class="code" id="qr" aria-label="QR para votar"></div>
+        <div>
+          <div style="font-size:.8em;color:var(--gris)">Vota desde el móvil · anónimo</div>
+          <div class="u" id="url"></div>
+          <div class="n"><span id="nvotos">0</span><small id="nlbl">votos</small></div>
+        </div>
+      </div>
+    </div>
+    <div class="der">
+      <div id="ops" style="display:flex;flex-direction:column;gap:1.1vh"></div>
+      <div class="zona muro" id="muro">
+        <div class="lbl">LO QUE ESTÁIS PENSANDO</div>
+        <div class="coms" id="coms"></div>
+      </div>
+      <div class="zona exp oculto" id="exp">
+        <div class="lbl">RESPUESTA RECOMENDADA</div>
+        <h3 id="expTit"></h3>
+        <div id="expTxt"></div>
+      </div>
+    </div>
+  </div>
+  <div class="barraInf">
+    <div id="pie"><b>Escanea el QR:</b> vota A, B o C y, si quieres, explica por qué. Los resultados aparecen en directo.</div>
+    <div class="esp"></div>
+    <div class="ctr">
+      <button id="bBarras" title="Tecla H">Ocultar %</button>
+      <button id="bNueva" title="Tecla N">Nueva sesión</button>
+      <button id="bRev" class="prim" title="Tecla R">Revelar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal oculto" id="modal">
+  <div class="box">
+    <h3 id="mTit">PIN del profesor</h3>
+    <input id="mPin" type="password" inputmode="numeric" autocomplete="off" placeholder="••••••">
+    <div class="msg" id="mMsg"></div>
+    <div class="bt"><button id="mNo">Cancelar</button><button class="ok" id="mSi">Aceptar</button></div>
+  </div>
+</div>
+
+<script src="/qrcode.js"></script>
+<script src="/comun.js"></script>
+<script>
+const slug = slugActual();
+const $ = id => document.getElementById(id);
+let enc = null, votos = [], ocultarPct = new URLSearchParams(location.search).get("pct") === "0";
+let revLocal = false;
+const alias = aliasDe(slug);
+const rutaVoto = alias !== slug ? `/${alias}` : `/v/${slug}`;
+const urlVoto = `${location.origin}${rutaVoto}`;
+$("url").textContent = `${location.host}${rutaVoto}`;
+try { const q = qrcode(0, "M"); q.addData(urlVoto); q.make();
+  $("qr").innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }).replace(/fill="black"|fill="#000000"/g, 'fill="#1E293B"'); } catch (e) {}
+
+function revelada() { return revLocal || (enc && enc.estado === "revelada"); }
+
+function pintarEstatico() {
+  $("titulo").textContent = enc.titulo;
+  $("situacion").innerHTML = enc.situacion.map(p => `<p>${esc(p)}</p>`).join("");
+  $("pregunta").textContent = enc.pregunta;
+  $("ops").innerHTML = enc.opciones.map(o => `
+    <div class="op" data-k="${o.k}"><div class="barra"></div>
+      <div class="in"><span class="letra">${esc(o.k)}</span>
+        <div class="txt"><b>${esc(o.titulo)}:</b> ${esc(o.texto)}<div class="tick">✓ Respuesta recomendada</div></div>
+        <div class="pct"><span class="p">0 %</span><small class="c">0 votos</small></div></div></div>`).join("");
+}
+
+function pintarDinamico() {
+  const total = votos.length;
+  const cuenta = {}; enc.opciones.forEach(o => cuenta[o.k] = 0);
+  votos.forEach(v => { if (v.opcion in cuenta) cuenta[v.opcion]++; });
+  const rev = revelada();
+  const verPct = rev || !ocultarPct;
+  $("nvotos").textContent = total; $("nlbl").textContent = total === 1 ? "voto" : "votos";
+  document.querySelectorAll(".op").forEach(el => {
+    const k = el.dataset.k, n = cuenta[k] || 0, pct = total ? Math.round(100 * n / total) : 0;
+    el.querySelector(".barra").style.width = verPct ? pct + "%" : "0";
+    el.querySelector(".p").textContent = verPct ? pct + " %" : "–";
+    el.querySelector(".c").textContent = verPct ? `${n} ${n === 1 ? "voto" : "votos"}` : "";
+    el.classList.toggle("ok", rev && k === enc.correcta);
+    el.classList.toggle("mal", rev && k !== enc.correcta);
+  });
+  const coms = votos.filter(v => v.comentario).slice(0, 6);
+  $("coms").innerHTML = coms.length ? coms.map(v => `<div class="com"><span class="letra">${esc(v.opcion)}</span><span>${esc(v.comentario)}</span></div>`).join("")
+    : `<div class="vacio">Aquí aparecerán vuestros argumentos, sin nombre.</div>`;
+  $("muro").classList.toggle("oculto", rev);
+  $("exp").classList.toggle("oculto", !rev);
+  if (rev) {
+    const c = enc.opciones.find(o => o.k === enc.correcta) || {};
+    $("expTit").textContent = `${enc.correcta}. ${c.titulo || ""}`;
+    $("expTxt").textContent = enc.explicacion;
+    $("pie").innerHTML = `<b>Recuerda:</b> ${esc(enc.clave)}`;
+    $("bRev").textContent = "Ocultar respuesta";
+  } else {
+    $("pie").innerHTML = `<b>Escanea el QR:</b> vota A, B o C y, si quieres, explica por qué. Los resultados aparecen en directo.`;
+    $("bRev").textContent = "Revelar";
+  }
+  $("bBarras").textContent = ocultarPct ? "Mostrar %" : "Ocultar %";
+}
+
+let primera = true;
+async function tick() {
+  try {
+    const e = await cargarEncuesta(slug);
+    if (!e) { $("titulo").textContent = "Votación no encontrada"; return; }
+    const sesionCambia = enc && e.sesion !== enc.sesion;
+    if (enc && enc.estado === "revelada" && e.estado === "abierta") revLocal = false;
+    enc = e;
+    if (primera || sesionCambia) { pintarEstatico(); primera = false; }
+    votos = await cargarVotos(slug, enc.sesion);
+    pintarDinamico();
+  } catch (err) { /* reintenta en el siguiente ciclo */ }
+}
+tick(); setInterval(tick, 2000);
+
+// --- control del profesor (PIN) ---
+function pedirPin(titulo) {
+  return new Promise(res => {
+    const guardado = store.get("eude_pin");
+    if (guardado) return res(guardado);
+    $("mTit").textContent = titulo; $("mPin").value = ""; $("mMsg").textContent = "";
+    $("modal").classList.remove("oculto"); setTimeout(() => $("mPin").focus(), 50);
+    $("mSi").onclick = () => { $("modal").classList.add("oculto"); res($("mPin").value.trim()); };
+    $("mNo").onclick = () => { $("modal").classList.add("oculto"); res(null); };
+  });
+}
+async function control(accion, titulo) {
+  const pin = await pedirPin(titulo);
+  if (!pin) return false;
+  try {
+    enc = await sb("rpc/vot_control", { method: "POST", body: JSON.stringify({ p_slug: slug, p_pin: pin, p_accion: accion }) });
+    store.set("eude_pin", pin);
+    return true;
+  } catch (e) {
+    try { localStorage.removeItem("eude_pin"); } catch (_) {} store._m.eude_pin = null;
+    alertaPin(e.message && e.message.includes("PIN") ? "PIN incorrecto." : "Sin conexión con el servidor.");
+    return false;
+  }
+}
+function alertaPin(msg) {
+  $("mTit").textContent = "No se ha podido aplicar"; $("mMsg").textContent = msg; $("mPin").value = "";
+  $("modal").classList.remove("oculto");
+  $("mSi").onclick = () => $("modal").classList.add("oculto"); $("mNo").onclick = () => $("modal").classList.add("oculto");
+}
+async function alternarRevelar() {
+  if (!enc) return;
+  if (revelada()) {
+    revLocal = false;
+    if (enc.estado === "revelada") await control("reabrir", "PIN para volver a abrir la votación");
+  } else {
+    revLocal = true; pintarDinamico();           // se ve al instante, aunque falle la red
+    await control("revelar", "PIN para revelar la respuesta");
+  }
+  pintarDinamico();
+}
+async function nuevaSesion() {
+  if (!enc) return;
+  revLocal = false;
+  if (await control("reiniciar", "PIN para empezar una sesión nueva (pone el contador a cero)")) {
+    pintarEstatico(); votos = []; pintarDinamico();
+  }
+}
+$("bRev").onclick = alternarRevelar;
+$("bNueva").onclick = nuevaSesion;
+$("bBarras").onclick = () => { ocultarPct = !ocultarPct; pintarDinamico(); };
+$("mPin").addEventListener("keydown", e => { if (e.key === "Enter") $("mSi").click(); });
+document.addEventListener("keydown", e => {
+  if (!$("modal").classList.contains("oculto")) return;
+  const k = e.key.toLowerCase();
+  if (k === "r") alternarRevelar(); else if (k === "n") nuevaSesion(); else if (k === "h") $("bBarras").click();
+});
+</script>
+</body>
+</html>

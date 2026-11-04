@@ -1,0 +1,28 @@
+:root {
+  --burdeos: #761E3A;
+  --burdeos-2: #8E2747;
+  --oro: #C9A227;
+  --oro-claro: #F3E7BF;
+  --navy: #1E293B;
+  --crema: #F5EFE6;
+  --gris: #6B7280;
+  --blanco: #FFFFFF;
+  --verde: #2F7D4F;
+  font-family: Calibri, Carlito, Lato, "Segoe UI", Roboto, Arial, sans-serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--blanco); color: var(--navy); }
+button { font-family: inherit; }
+
+.cab { display: flex; align-items: center; justify-content: space-between; }
+.cab img.eude { height: 100%; max-height: 34px; }
+.cab img.we { max-height: 18px; }
+.eyebrow { color: var(--oro); font-weight: 700; text-transform: uppercase; letter-spacing: .02em; }
+.titulo { color: var(--burdeos); font-weight: 700; margin: 0; line-height: 1.15; }
+
+.card-navy { background: var(--navy); color: #fff; border-radius: 18px; }
+.card-crema { background: var(--crema); border-radius: 12px; }
+.letra { display: inline-flex; align-items: center; justify-content: center; border-radius: 50%;
+  background: var(--burdeos); color: var(--oro); font-weight: 700; flex: none; }
+.pregunta { color: var(--oro); font-style: italic; font-weight: 700; }
+.oculto { display: none !important; }

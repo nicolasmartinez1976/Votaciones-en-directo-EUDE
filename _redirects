@@ -1,0 +1,6 @@
+/mkt            /votar.html     200
+/mba            /votar.html     200
+/pantalla/mkt   /pantalla.html  200
+/pantalla/mba   /pantalla.html  200
+/v/*            /votar.html     200
+/p/*            /pantalla.html  200
