@@ -156,7 +156,7 @@ $("enviar").addEventListener("click", async () => {
 
 async function refrescar() {
   try {
-    const nuevo = await cargarEncuesta(slug);
+    const nuevo = enc ? await cargarEncuesta(slug) : await abrirEncuesta(slug);
     if (!nuevo) { $("cargando").textContent = "Esta votación no existe. Revisa el enlace o el QR."; return; }
     const cambio = !enc || nuevo.estado !== enc.estado || nuevo.sesion !== enc.sesion;
     const sesionNueva = enc && nuevo.sesion !== enc.sesion;

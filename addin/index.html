@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Votación EUDE</title>
+<script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+<link rel="stylesheet" href="/estilos.css">
+<style>
+  html, body { height: 100%; margin: 0; overflow: hidden; }
+  #marco { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; }
+  #elegir { padding: 18px 22px; background: var(--crema); height: 100%; overflow: auto; font-size: 15px; }
+  #elegir h2 { color: var(--burdeos); margin: 0 0 4px; font-size: 20px; }
+  #elegir p { margin: 0 0 12px; color: var(--gris); }
+  .it { display: block; width: 100%; text-align: left; background: #fff; border: 2px solid transparent; border-radius: 10px;
+    padding: 10px 12px; margin-bottom: 8px; cursor: pointer; font: inherit; color: var(--navy); }
+  .it:hover { border-color: var(--burdeos); }
+  .it small { display: block; color: var(--gris); font-size: 12px; }
+  #cambiar { position: fixed; left: 50%; top: 6px; transform: translateX(-50%); z-index: 5; font-size: 11px; padding: 3px 8px; border-radius: 6px;
+    border: 1px solid #ccc; background: rgba(255,255,255,.9); cursor: pointer; display: none; }
+</style>
+</head>
+<body>
+<div id="elegir" class="oculto">
+  <h2>¿Qué votación muestra esta diapositiva?</h2>
+  <p>Elígela una vez: queda guardada en la presentación. En modo presentación se verá a pantalla completa.</p>
+  <div id="lista">Cargando…</div>
+</div>
+<iframe id="marco" class="oculto" allow="clipboard-write"></iframe>
+<button id="cambiar">Cambiar votación</button>
+<script src="/comun.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+let enOffice = false;
+
+function mostrar(slug) {
+  $("elegir").classList.add("oculto");
+  $("marco").src = `/p/${encodeURIComponent(slug)}`;
+  $("marco").classList.remove("oculto");
+}
+async function elegir() {
+  $("marco").classList.add("oculto"); $("marco").src = "about:blank";
+  $("elegir").classList.remove("oculto");
+  try {
+    const l = await sb("vot_encuestas?select=slug,titulo,contexto&order=actualizado.desc");
+    $("lista").innerHTML = l.map(e => `<button class="it" data-s="${esc(e.slug)}">${esc(e.titulo)}<small>${esc(e.slug)}${e.contexto ? " · " + esc(e.contexto) : ""}</small></button>`).join("")
+      || "Aún no hay votaciones. Créalas en eude-votacion.netlify.app/admin";
+    $("lista").querySelectorAll(".it").forEach(b => b.onclick = () => guardar(b.dataset.s));
+  } catch (e) { $("lista").textContent = "Sin conexión. Revisa internet y vuelve a abrir el complemento."; }
+}
+function guardar(slug) {
+  if (enOffice) {
+    const st = Office.context.document.settings;
+    st.set("slug", slug); st.saveAsync(() => {});
+  } else { store.set("addin_slug", slug); }
+  mostrar(slug);
+}
+let iniciado = false;
+function arrancar() {
+  if (iniciado) return; iniciado = true;
+  const q = new URLSearchParams(location.search).get("p");
+  const slug = q || (enOffice ? Office.context.document.settings.get("slug") : store.get("addin_slug"));
+  if (slug) mostrar(slug); else elegir();
+  // el botón de cambiar solo en modo edición
+  if (enOffice && Office.context.document.getActiveViewAsync) {
+    const ver = () => Office.context.document.getActiveViewAsync(r => { $("cambiar").style.display = r.value === "edit" ? "block" : "none"; });
+    ver();
+    try { Office.context.document.addHandlerAsync(Office.EventType.ActiveViewChanged, ver); } catch (e) {}
+  } else if (!enOffice) { $("cambiar").style.display = "block"; }
+}
+$("cambiar").onclick = elegir;
+if (window.Office && Office.onReady) {
+  Office.onReady(info => { enOffice = !!(info && info.host); arrancar(); });
+  setTimeout(arrancar, 4000);
+} else { arrancar(); }
+</script>
+</body>
+</html>

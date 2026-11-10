@@ -42,6 +42,12 @@ function cargarEncuesta(slug) {
   return sb(`vot_encuestas?slug=eq.${encodeURIComponent(slug)}&select=*`).then(d => (d && d[0]) || null);
 }
 
+// Al abrir: si la encuesta lleva más de 60 min sin actividad, se pone a cero sola.
+function abrirEncuesta(slug) {
+  return sb("rpc/vot_sesion_fresca", { method: "POST", body: JSON.stringify({ p_slug: slug }) })
+    .then(d => (d && d.slug) ? d : null).catch(() => cargarEncuesta(slug));
+}
+
 function cargarVotos(slug, sesion) {
   return sb(`vot_votos?slug=eq.${encodeURIComponent(slug)}&sesion=eq.${sesion}&select=opcion,comentario,creado&order=creado.desc&limit=1000`);
 }

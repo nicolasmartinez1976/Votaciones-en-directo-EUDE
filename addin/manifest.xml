@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:type="ContentApp">
+  <Id>8e70c87c-0b7a-4d34-9b86-e2bb76e70241</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>Nicolás Martínez · EUDE</ProviderName>
+  <DefaultLocale>es-ES</DefaultLocale>
+  <DisplayName DefaultValue="Votación EUDE"/>
+  <Description DefaultValue="Muestra dentro de la diapositiva la votación en directo (QR, votos, argumentos y respuesta)."/>
+  <IconUrl DefaultValue="https://eude-votacion.netlify.app/addin/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://eude-votacion.netlify.app/addin/icon-64.png"/>
+  <SupportUrl DefaultValue="https://eude-votacion.netlify.app/"/>
+  <AppDomains>
+    <AppDomain>https://eude-votacion.netlify.app</AppDomain>
+  </AppDomains>
+  <Hosts>
+    <Host Name="Presentation"/>
+  </Hosts>
+  <DefaultSettings>
+    <SourceLocation DefaultValue="https://eude-votacion.netlify.app/addin/"/>
+    <RequestedWidth>960</RequestedWidth>
+    <RequestedHeight>540</RequestedHeight>
+  </DefaultSettings>
+  <Permissions>ReadWriteDocument</Permissions>
+  <AllowSnapshot>true</AllowSnapshot>
+</OfficeApp>

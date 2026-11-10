@@ -5,3 +5,9 @@
   Cache-Control: no-cache
 /comun.js
   Cache-Control: no-cache
+/addin/*.bat
+  Content-Type: application/octet-stream
+  Content-Disposition: attachment
+/addin/*.command
+  Content-Type: application/octet-stream
+  Content-Disposition: attachment

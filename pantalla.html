@@ -192,7 +192,7 @@ function pintarDinamico() {
 let primera = true;
 async function tick() {
   try {
-    const e = await cargarEncuesta(slug);
+    const e = primera ? await abrirEncuesta(slug) : await cargarEncuesta(slug);
     if (!e) { $("titulo").textContent = "Votación no encontrada"; return; }
     const sesionCambia = enc && e.sesion !== enc.sesion;
     if (enc && enc.estado === "revelada" && e.estado === "abierta") revLocal = false;
