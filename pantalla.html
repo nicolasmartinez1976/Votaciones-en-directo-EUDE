@@ -69,6 +69,23 @@
   .modal button { padding: .5em 1em; border-radius: 8px; border: 0; cursor: pointer; font-size: .95em; }
   .modal .ok { background: var(--burdeos); color: #fff; }
   .modal .msg { color: #B42318; font-size: .85em; margin-top: .5em; min-height: 1.2em; }
+  /* Móvil en vertical: modo «mando» del profesor */
+  @media (max-aspect-ratio: 4/5) {
+    html, body { height: auto; overflow: auto; }
+    body { font-size: 15px; }
+    .lienzo { height: auto; min-height: 100vh; width: 100%; padding: 12px 14px 18px; gap: 12px; }
+    .cab { height: 30px; }
+    .titulo { font-size: 1.4em; }
+    .cuerpo { grid-template-columns: 1fr; gap: 12px; }
+    .izq { order: 2; } .der { order: 1; }
+    .sit { flex: none; }
+    .qr img, .qr .code { height: 90px; width: 90px; }
+    .zona { flex: none; }
+    .coms { grid-template-columns: 1fr; }
+    .barraInf { flex-direction: column; align-items: stretch; position: sticky; bottom: 8px; }
+    .ctr { justify-content: stretch; }
+    .ctr button { flex: 1; font-size: 15px; padding: 10px 6px; opacity: 1; }
+  }
 </style>
 </head>
 <body>
