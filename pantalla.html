@@ -23,7 +23,7 @@
   .qr { display: flex; gap: 1em; align-items: center; padding: .8em 1em; background: var(--crema); border-radius: 14px; }
   .qr .code { height: 17vh; width: 17vh; border-radius: 8px; background: #fff; padding: .4vh; flex: none; }
   .qr .code svg { width: 100%; height: 100%; display: block; }
-  .qr .u { font-weight: 700; color: var(--burdeos); font-size: 1.05em; word-break: break-all; }
+  .qr .u { font-weight: 700; color: var(--burdeos); font-size: 1.05em; overflow-wrap: anywhere; }
   .qr .n { font-size: 2.4em; font-weight: 700; color: var(--navy); line-height: 1; margin-top: .25em; }
   .qr .n small { font-size: .38em; font-weight: 400; color: var(--gris); margin-left: .3em; }
   .der { display: flex; flex-direction: column; gap: 1.1vh; min-height: 0; }
@@ -154,7 +154,7 @@ let revLocal = false;
 const alias = aliasDe(slug);
 const rutaVoto = alias !== slug ? `/${alias}` : `/v/${slug}`;
 const urlVoto = `${location.origin}${rutaVoto}`;
-$("url").textContent = `${location.host}${rutaVoto}`;
+$("url").innerHTML = `${esc(location.host)}${esc(rutaVoto.replace(/[^/]+$/, ""))}<wbr>${esc(rutaVoto.split("/").pop())}`;
 try { const q = qrcode(0, "M"); q.addData(urlVoto); q.make();
   $("qr").innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }).replace(/fill="black"|fill="#000000"/g, 'fill="#1E293B"'); } catch (e) {}
 
